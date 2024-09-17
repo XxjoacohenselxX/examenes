@@ -1,4 +1,4 @@
-package tp16_java;
+package ar.edu.et7;
 
 import javax.swing.*;
 import java.awt.*;
