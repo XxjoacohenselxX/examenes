@@ -21,6 +21,8 @@ public class QuestionDisplay extends JFrame {
     private JLabel timerLabel;
     private int timeRemaining = 30 * 60; // 30 minutos en segundos
     private int score = 0;
+    private JProgressBar progressBar; // Barra de progreso
+    private JLabel questionCountLabel; // Etiqueta para contar las preguntas
 
     public QuestionDisplay(List<Question> questions) {
         this.questions = questions;
@@ -70,6 +72,16 @@ public class QuestionDisplay extends JFrame {
         // Iniciar el temporizador
         startTimer();
 
+        // Inicializar la barra de progreso
+        progressBar = new JProgressBar(0, questions.size());
+        progressBar.setStringPainted(true);
+        progressBar.setValue(0);
+        add(progressBar); // Añadir la barra de progreso
+
+        // Inicializar la etiqueta de conteo de preguntas
+        questionCountLabel = new JLabel();
+        add(questionCountLabel); // Añadir la etiqueta al contenedor
+
         // Mostrar la primera pregunta
         showQuestion();
     }
@@ -102,6 +114,8 @@ public class QuestionDisplay extends JFrame {
                 button.setSelected(false);
             }
 
+            progressBar.setValue(currentQuestionIndex + 1); // Actualizar barra de progreso
+            questionCountLabel.setText("Pregunta " + (currentQuestionIndex + 1) + " de " + questions.size()); // Actualizar conteo
             currentQuestionIndex++;
         } else {
             endQuiz();
