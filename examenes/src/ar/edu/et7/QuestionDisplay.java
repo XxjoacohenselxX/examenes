@@ -15,7 +15,7 @@ public class QuestionDisplay extends JFrame {
     private JLabel titleLabel;
     private JLabel stimulusLabel;
     private JTextArea promptArea;
-    private JRadioButton[] choiceButtons;
+    private JCheckBox[] checkboxButtons;
     private JButton nextButton;
     private Timer timer;
     private JLabel timerLabel;
@@ -23,6 +23,7 @@ public class QuestionDisplay extends JFrame {
     private int score = 0;
     private JProgressBar progressBar; // Barra de progreso
     private JLabel questionCountLabel; // Etiqueta para contar las preguntas
+    
 
     public QuestionDisplay(List<Question> questions) {
         this.questions = questions;
@@ -46,12 +47,10 @@ public class QuestionDisplay extends JFrame {
         add(promptArea);
 
         // Inicialización de botones de opción
-        choiceButtons = new JRadioButton[4];
-        ButtonGroup buttonGroup = new ButtonGroup();
-        for (int i = 0; i < choiceButtons.length; i++) {
-            choiceButtons[i] = new JRadioButton();
-            buttonGroup.add(choiceButtons[i]);
-            add(choiceButtons[i]);
+        checkboxButtons = new JCheckBox[4];
+        for (int i = 0; i < checkboxButtons.length; i++) {
+            checkboxButtons[i] = new JCheckBox();
+            add(checkboxButtons[i]);
         }
 
         // Botón para pasar a la siguiente pregunta
@@ -82,6 +81,7 @@ public class QuestionDisplay extends JFrame {
         questionCountLabel = new JLabel();
         add(questionCountLabel); // Añadir la etiqueta al contenedor
 
+        
         // Mostrar la primera pregunta
         showQuestion();
     }
@@ -94,26 +94,25 @@ public class QuestionDisplay extends JFrame {
             promptArea.setText(q.getPrompt());
 
             // Verificar el tamaño de choices y asegurarse de que no haya más opciones que botones
-            if (q.getChoices().size() > choiceButtons.length) {
+            if (q.getChoices().size() > checkboxButtons.length) {
                 throw new IllegalStateException("Más opciones que botones de elección disponibles");
             }
 
             // Limpiar y actualizar los botones de opción
-            for (int i = 0; i < choiceButtons.length; i++) {
+            for (int i = 0; i < checkboxButtons.length; i++) {
                 if (i < q.getChoices().size()) {
                     Question.Choice choice = q.getChoices().get(i);
-                    choiceButtons[i].setText(choice.getContent());
-                    choiceButtons[i].setActionCommand(choice.getId());
+                    checkboxButtons[i].setText(choice.getContent());
+                    checkboxButtons[i].setActionCommand(choice.getId());
                 } else {
-                    choiceButtons[i].setText(""); // Limpiar botones no utilizados
+                    checkboxButtons[i].setText(""); // Limpiar botones no utilizados
                 }
             }
 
             // Deseleccionar todos los botones
-            for (JRadioButton button : choiceButtons) {
+            for (JCheckBox button : checkboxButtons) {
                 button.setSelected(false);
             }
-
             progressBar.setValue(currentQuestionIndex + 1); // Actualizar barra de progreso
             questionCountLabel.setText("Pregunta " + (currentQuestionIndex + 1) + " de " + questions.size()); // Actualizar conteo
             currentQuestionIndex++;
@@ -133,7 +132,7 @@ public class QuestionDisplay extends JFrame {
     }
 
     private String getSelectedChoiceId() {
-        for (JRadioButton button : choiceButtons) {
+        for (JCheckBox button : checkboxButtons) {
             if (button.isSelected()) {
                 return button.getActionCommand();
             }
