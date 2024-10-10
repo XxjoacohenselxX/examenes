@@ -16,6 +16,37 @@
 					<release>17</release>
 				</configuration>
 			</plugin>
+
+			<!-- Maven Jar Plugin para agregar Main-Class -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>ar.edu.et7.Main</mainClass> <!-- Aqu� defines tu clase principal -->
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix> <!-- Esto indica d�nde est�n las dependencias -->
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -47,12 +78,5 @@
             <artifactId>json</artifactId>
             <version>20230227</version>
         </dependency>
-        <!--
-<dependency>
-    <groupId>com.googlecode.json-simple</groupId>
-    <artifactId>json-simple</artifactId>
-    <version>1.1.1</version>
-</dependency>-->        		
 	</dependencies>
-
 </project>
