@@ -190,10 +190,23 @@ System.out.println(q.getPrompt());
 	            Question q = questions.get(i);
 	            contentStream.showText("Pregunta: " + q.getPrompt());
 	            contentStream.newLineAtOffset(0, -20);
-	            contentStream.showText("Respuesta correcta: " + correctAnswers.get(i));
+	            
+	            // Mostrar respuesta correcta
+	            String correctAnswerText = getCorrectAnswerText(q);
+	            contentStream.setNonStrokingColor(0, 128, 0); // Verde
+	            contentStream.showText("Respuesta correcta: " + correctAnswerText);
 	            contentStream.newLineAtOffset(0, -20);
-	            contentStream.showText("Tu respuesta: " + userAnswers.get(i));
+	            
+	            // Mostrar respuesta del usuario
+	            String userAnswer = userAnswers.get(i);
+	            String userAnswerText = getUserAnswerText(q, userAnswer);
+	            contentStream.setNonStrokingColor(255, 0, 0); // Rojo
+	            contentStream.showText("Tu respuesta: " + userAnswer + " (" + userAnswerText + ")");
 	            contentStream.newLineAtOffset(0, -20);
+
+	        
+	            // Resetear color a negro para el siguiente texto
+	            contentStream.setNonStrokingColor(0, 0, 0); // Negro
 	        }
 
 	        contentStream.endText();
@@ -209,4 +222,24 @@ System.out.println(q.getPrompt());
 	        e.printStackTrace();
 	    }
 	}
+
+	private String getCorrectAnswerText(Question q) {
+	    // Obtener el texto de la respuesta correcta
+	    return q.getChoices().stream()
+	             .filter(choice -> q.getAnswers().get(0).contains(choice.getId()))
+	             .map(choice -> choice.getId().toUpperCase() + "- " + choice.getContent())
+	             .findFirst()
+	             .orElse("Respuesta no encontrada");
+	}
+
+	private String getUserAnswerText(Question q, String userAnswerId) {
+	    // Obtener el texto de la respuesta del usuario
+	    return q.getChoices().stream()
+	             .filter(choice -> choice.getId().equals(userAnswerId))
+	             .map(choice -> choice.getContent())
+	             .findFirst()
+	             .orElse("Respuesta no encontrada");
+	}
 }
+
+
