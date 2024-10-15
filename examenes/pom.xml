@@ -47,6 +47,18 @@
             <artifactId>json</artifactId>
             <version>20230227</version>
         </dependency>
+        
+<dependency>
+    <groupId>com.itextpdf</groupId>
+    <artifactId>io</artifactId>
+    <version>7.2.4</version> <!-- Verifica la última versión en https://mvnrepository.com/ -->
+</dependency>
+
+<dependency>
+    <groupId>org.apache.pdfbox</groupId>
+    <artifactId>pdfbox</artifactId>
+    <version>2.0.24</version> <!-- Verifica la última versión en https://mvnrepository.com/ -->
+</dependency>
         <!--
 <dependency>
     <groupId>com.googlecode.json-simple</groupId>
