@@ -14,10 +14,13 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class QuestionDisplay extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private List<String> userAnswers; // Almacena las respuestas del usuario
 	private List<String> correctAnswers; // Almacena las respuestas correctas
 	private List<Question> questions;
@@ -171,6 +174,7 @@ System.out.println(q.getPrompt());
     }
 
 	
+	@SuppressWarnings("deprecation")
 	private void endQuiz() {
 	    // Mostrar el puntaje
 	    JOptionPane.showMessageDialog(this, "Quiz terminado. Puntaje: " + score);
@@ -241,5 +245,3 @@ System.out.println(q.getPrompt());
 	             .orElse("Respuesta no encontrada");
 	}
 }
-
-
