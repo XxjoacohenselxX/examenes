@@ -4,30 +4,38 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
+import java.io.IOException;
 
 public class QuestionDisplay extends JFrame {
+    private static final long serialVersionUID = 1L;
+    private List<String> userAnswers; // Almacena las respuestas del usuario
     private List<Question> questions;
     private int currentQuestionIndex = 0;
     private JLabel titleLabel;
     private JLabel stimulusLabel;
     private JTextArea promptArea;
-    private JCheckBox[] checkboxButtons;
+    private JRadioButton[] choiceButtons; // Opciones de respuesta
     private JButton nextButton;
     private Timer timer;
     private JLabel timerLabel;
     private int timeRemaining = 30 * 60; // 30 minutos en segundos
     private int score = 0;
-    private JProgressBar progressBar; // Barra de progreso
-    private JLabel questionCountLabel; // Etiqueta para contar las preguntas
-    
 
     public QuestionDisplay(List<Question> questions) {
         this.questions = questions;
         Collections.shuffle(this.questions); // Mezcla las preguntas
+
+        userAnswers = new ArrayList<>();
 
         // Configuración de la ventana
         setTitle("Multiple Choice Quiz");
@@ -47,10 +55,12 @@ public class QuestionDisplay extends JFrame {
         add(promptArea);
 
         // Inicialización de botones de opción
-        checkboxButtons = new JCheckBox[4];
-        for (int i = 0; i < checkboxButtons.length; i++) {
-            checkboxButtons[i] = new JCheckBox();
-            add(checkboxButtons[i]);
+        choiceButtons = new JRadioButton[4];
+        ButtonGroup buttonGroup = new ButtonGroup();
+        for (int i = 0; i < choiceButtons.length; i++) {
+            choiceButtons[i] = new JRadioButton();
+            buttonGroup.add(choiceButtons[i]);
+            add(choiceButtons[i]);
         }
 
         // Botón para pasar a la siguiente pregunta
@@ -71,17 +81,6 @@ public class QuestionDisplay extends JFrame {
         // Iniciar el temporizador
         startTimer();
 
-        // Inicializar la barra de progreso
-        progressBar = new JProgressBar(0, questions.size());
-        progressBar.setStringPainted(true);
-        progressBar.setValue(0);
-        add(progressBar); // Añadir la barra de progreso
-
-        // Inicializar la etiqueta de conteo de preguntas
-        questionCountLabel = new JLabel();
-        add(questionCountLabel); // Añadir la etiqueta al contenedor
-
-        
         // Mostrar la primera pregunta
         showQuestion();
     }
@@ -93,28 +92,22 @@ public class QuestionDisplay extends JFrame {
             stimulusLabel.setText("Stimulus: " + q.getStimulus());
             promptArea.setText(q.getPrompt());
 
-            // Verificar el tamaño de choices y asegurarse de que no haya más opciones que botones
-            if (q.getChoices().size() > checkboxButtons.length) {
-                throw new IllegalStateException("Más opciones que botones de elección disponibles");
-            }
-
             // Limpiar y actualizar los botones de opción
-            for (int i = 0; i < checkboxButtons.length; i++) {
+            for (int i = 0; i < choiceButtons.length; i++) {
                 if (i < q.getChoices().size()) {
                     Question.Choice choice = q.getChoices().get(i);
-                    checkboxButtons[i].setText(choice.getContent());
-                    checkboxButtons[i].setActionCommand(choice.getId());
+                    choiceButtons[i].setText(choice.getContent());
+                    choiceButtons[i].setActionCommand(choice.getId());
                 } else {
-                    checkboxButtons[i].setText(""); // Limpiar botones no utilizados
+                    choiceButtons[i].setText(""); // Limpiar botones no utilizados
                 }
             }
 
             // Deseleccionar todos los botones
-            for (JCheckBox button : checkboxButtons) {
+            for (JRadioButton button : choiceButtons) {
                 button.setSelected(false);
             }
-            progressBar.setValue(currentQuestionIndex + 1); // Actualizar barra de progreso
-            questionCountLabel.setText("Pregunta " + (currentQuestionIndex + 1) + " de " + questions.size()); // Actualizar conteo
+
             currentQuestionIndex++;
         } else {
             endQuiz();
@@ -125,14 +118,19 @@ public class QuestionDisplay extends JFrame {
         if (currentQuestionIndex > 0) {
             Question q = questions.get(currentQuestionIndex - 1);
             String selectedChoiceId = getSelectedChoiceId();
-            if (selectedChoiceId != null && q.getAnswers().stream().anyMatch(answer -> answer.contains(selectedChoiceId))) {
+
+            // Almacenar la respuesta del usuario
+            userAnswers.add(selectedChoiceId);
+
+            if (selectedChoiceId != null && 
+                q.getAnswers().stream().anyMatch(answer -> answer.contains(selectedChoiceId))) {
                 score += q.getPoints(); // Aumentar puntaje por respuesta correcta
             }
         }
     }
 
     private String getSelectedChoiceId() {
-        for (JCheckBox button : checkboxButtons) {
+        for (JRadioButton button : choiceButtons) {
             if (button.isSelected()) {
                 return button.getActionCommand();
             }
@@ -161,9 +159,73 @@ public class QuestionDisplay extends JFrame {
         }, 0, 1000);
     }
 
+    @SuppressWarnings("deprecation")
     private void endQuiz() {
         // Mostrar el puntaje
         JOptionPane.showMessageDialog(this, "Quiz terminado. Puntaje: " + score);
-        System.exit(0);
+        
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page); // Agregar la página al documento
+
+        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+            contentStream.newLineAtOffset(100, 700); // Establecer la posición del texto
+            contentStream.showText("Quiz terminado. Puntaje: " + score); // Escribir el puntaje
+            contentStream.newLineAtOffset(0, -20); // Bajar la posición
+
+            for (int i = 0; i < questions.size(); i++) {
+                Question q = questions.get(i);
+                contentStream.showText("Pregunta: " + q.getPrompt());
+                contentStream.newLineAtOffset(0, -20);
+                
+                // Mostrar respuesta correcta
+                String correctAnswerText = getCorrectAnswerText(q);
+                contentStream.setNonStrokingColor(0, 128, 0); // Verde
+                contentStream.showText("Respuesta correcta: " + correctAnswerText);
+                contentStream.newLineAtOffset(0, -20);
+                
+                // Mostrar respuesta del usuario
+                String userAnswer = userAnswers.get(i);
+                String userAnswerText = getUserAnswerText(q, userAnswer);
+                contentStream.setNonStrokingColor(255, 0, 0); // Rojo
+                contentStream.showText("Tu respuesta: " + userAnswer + " (" + userAnswerText + ")");
+                contentStream.newLineAtOffset(0, -20);
+
+                // Resetear color a negro para el siguiente texto
+                contentStream.setNonStrokingColor(0, 0, 0); // Negro
+            }
+
+            contentStream.endText();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Guardar el documento como archivo.pdf
+        try {
+            document.save("archivo.pdf");
+            document.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getCorrectAnswerText(Question q) {
+        // Obtener el texto de la respuesta correcta
+        return q.getChoices().stream()
+                 .filter(choice -> q.getAnswers().get(0).contains(choice.getId())) // Asumiendo que la primera respuesta es la correcta
+                 .map(choice -> choice.getContent())
+                 .findFirst()
+                 .orElse("Respuesta no encontrada");
+    }
+
+    private String getUserAnswerText(Question q, String userAnswerId) {
+        // Obtener el texto de la respuesta del usuario
+        return q.getChoices().stream()
+                 .filter(choice -> choice.getId().equals(userAnswerId))
+                 .map(choice -> choice.getContent())
+                 .findFirst()
+                 .orElse("Respuesta no encontrada");
     }
 }
