@@ -39,14 +39,14 @@ public class QuestionLoader {
             question.setChoices(choices);
 
             JSONArray answersArray = jsonObject.getJSONArray("answers");
-            List<List<String>> answers = new ArrayList<>();
+            List<String> answers = new ArrayList<>();
             for (int l = 0; l < answersArray.length(); l++) {
                 JSONArray answerArray = answersArray.getJSONArray(l);
                 List<String> answerList = new ArrayList<>();
                 for (int m = 0; m < answerArray.length(); m++) {
                     answerList.add(answerArray.getString(m));
                 }
-                answers.add(answerList);
+                answers.addAll(answerList);
             }
             question.setAnswers(answers);
 

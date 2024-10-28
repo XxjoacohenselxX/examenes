@@ -23,7 +23,7 @@
       }
     ],
     "points": 10,
-    "answers": [ [ "b" ] ]
+    "answers": [[ "b" ]]
   },
   {
     "title": "Pregunta java ",
@@ -49,7 +49,7 @@
       }
     ],
     "points": 10,
-    "answers": [ [ "a"] ]
+    "answers": [[ "a" ]]
   },
   {
     "title": "Pregunta Java ",
@@ -75,7 +75,7 @@
       }
     ],
     "points": 10,
-    "answers": [ [ "c" ] ]
+    "answers": [[ "c" ]]
   },
   {
     "title": "Pregunta Java ",
@@ -101,7 +101,7 @@
       }
     ],
     "points": 10,
-    "answers": [ [ "a" ] ]
+    "answers": [[ "a" ]]
   },
   {
     "title": "Pregunta Java ",
@@ -127,10 +127,10 @@
       }
     ],
     "points": 10,
-    "answers": [ [ "a" ] ]
+    "answers": [[ "a" ]]
   },
   {
-    "title": "Preguna Java ",
+    "title": "Pregunta Java ",
     "category": "MCQ",
     "stimulus": "Exception Handling",
     "prompt": "¿Cómo se maneja una excepción en Java?",
@@ -153,6 +153,59 @@
       }
     ],
     "points": 10,
-    "answers": [ [ "a" ] ]
-  }
+    "answers": [[ "a" ]]
+  },
+  {
+    "title": "Pregunta Java",
+    "category": "MCQ",
+    "stimulus": "Control Structures",
+    "prompt": "¿Cuáles son estructuras de control en Java?(Seleccione todas las que apliquen)",
+    "choices": [
+      {
+        "id": "a",
+        "content": "if-else"
+      },
+      {
+        "id": "b",
+        "content": "while"
+      },
+      {
+        "id": "c",
+        "content": "do-while"
+      },
+      {
+        "id": "d",
+        "content": "for"
+      }
+    ],
+    "points": 10,
+    "answers": [[ "a", "b", "c", "d" ]]
+  },
+  {
+        "title": "Pregunta Java",
+        "category": "MCQ",
+        "stimulus": "Control Structures",
+        "prompt": "¿Cuál de las siguientes son estructuras de control de bucle en Java? (Seleccione todas las que apliquen)",
+        "choices": [
+            {
+                "id": "a",
+                "content": "if-else"
+            },
+            {
+                "id": "b",
+                "content": "while"
+            },
+            {
+                "id": "c",
+                "content": "switch"
+            },
+            {
+                "id": "d",
+                "content": "for"
+            }
+        ],
+        "points": 10,
+        "answers": [ [ "b", "d" ] ]
+    }
 ]
+

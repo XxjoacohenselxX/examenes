@@ -1,95 +1,90 @@
-<project xmlns="https://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>examenes</groupId>
-	<artifactId>examenes</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>test</testSourceDirectory>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
-				<configuration>
-					<release>17</release>
-				</configuration>
-			</plugin>
-
-			<!-- Maven Jar Plugin para agregar Main-Class -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.2.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>ar.edu.et7.Main</mainClass> <!-- Aquí defines tu clase principal -->
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix> <!-- Esto indica dónde están las dependencias -->
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-
-	<dependencies>
-		<!-- JUnit 5 -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.9.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.9.2</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- Mockito -->
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>5.5.0</version>
-			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20230227</version>
-        </dependency>
-
-		<!-- Dependencias adicionales -->
-		<dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>io</artifactId>
-            <version>7.2.4</version> <!-- Verifica la última versión en https://mvnrepository.com/ -->
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.24</version> <!-- Verifica la última versión en https://mvnrepository.com/ -->
-        </dependency>
-	</dependencies>
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>examenes</groupId>
+<artifactId>examenes</artifactId>
+<version>0.0.1-SNAPSHOT</version>
+<build>
+<sourceDirectory>src</sourceDirectory>
+<testSourceDirectory>test</testSourceDirectory>
+<plugins>
+<plugin>
+<artifactId>maven-compiler-plugin</artifactId>
+<version>3.8.1</version>
+<configuration>
+<release>17</release>
+</configuration>
+</plugin>
+<!--  Maven Jar Plugin para agregar Main-Class  -->
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-jar-plugin</artifactId>
+<version>3.2.0</version>
+<configuration>
+<archive>
+<manifest>
+<mainClass>ar.edu.et7.Main</mainClass>
+<!--  Aquí defines tu clase principal  -->
+<addClasspath>true</addClasspath>
+<classpathPrefix>lib/</classpathPrefix>
+<!--  Esto indica dónde están las dependencias  -->
+</manifest>
+</archive>
+</configuration>
+</plugin>
+<plugin>
+<artifactId>maven-dependency-plugin</artifactId>
+<executions>
+<execution>
+<phase>prepare-package</phase>
+<goals>
+<goal>copy-dependencies</goal>
+</goals>
+<configuration>
+<outputDirectory>${project.build.directory}/lib</outputDirectory>
+</configuration>
+</execution>
+</executions>
+</plugin>
+</plugins>
+</build>
+<dependencies>
+<!--  JUnit 5  -->
+<dependency>
+<groupId>org.junit.jupiter</groupId>
+<artifactId>junit-jupiter-api</artifactId>
+<version>5.9.2</version>
+<scope>test</scope>
+</dependency>
+<dependency>
+<groupId>org.junit.jupiter</groupId>
+<artifactId>junit-jupiter-engine</artifactId>
+<version>5.9.2</version>
+<scope>test</scope>
+</dependency>
+<!--  Mockito  -->
+<dependency>
+<groupId>org.mockito</groupId>
+<artifactId>mockito-core</artifactId>
+<version>5.5.0</version>
+<scope>test</scope>
+</dependency>
+<dependency>
+<groupId>org.json</groupId>
+<artifactId>json</artifactId>
+<version>20230227</version>
+</dependency>
+<!--  Dependencias adicionales  -->
+<dependency>
+<groupId>com.itextpdf</groupId>
+<artifactId>io</artifactId>
+<version>7.2.4</version>
+<!--  Verifica la última versión en https://mvnrepository.com/  -->
+</dependency>
+<dependency>
+<groupId>org.apache.pdfbox</groupId>
+<artifactId>pdfbox</artifactId>
+<version>2.0.24</version>
+<!--  Verifica la última versión en https://mvnrepository.com/  -->
+</dependency>
+</dependencies>
 </project>

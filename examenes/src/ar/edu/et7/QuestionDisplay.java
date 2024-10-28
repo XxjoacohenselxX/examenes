@@ -14,22 +14,24 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
+import java.io.File;
 import java.io.IOException;
 
 public class QuestionDisplay extends JFrame {
     private static final long serialVersionUID = 1L;
-    private List<String> userAnswers; // Almacena las respuestas del usuario
+    private List<List<String>> userAnswers; // Almacena las respuestas seleccionadas del usuario
     private List<Question> questions;
     private int currentQuestionIndex = 0;
     private JLabel titleLabel;
-    private JLabel stimulusLabel;
     private JTextArea promptArea;
-    private JRadioButton[] choiceButtons; // Opciones de respuesta
+    private JCheckBox[] choiceButtons; // Checkboxes para múltiples respuestas
     private JButton nextButton;
     private Timer timer;
     private JLabel timerLabel;
     private int timeRemaining = 30 * 60; // 30 minutos en segundos
     private int score = 0;
+    private JProgressBar progressBar; // Barra de progreso
+    private JLabel questionCountLabel; // Etiqueta para contar las preguntas
 
     public QuestionDisplay(List<Question> questions) {
         this.questions = questions;
@@ -45,21 +47,18 @@ public class QuestionDisplay extends JFrame {
 
         // Inicialización de componentes
         titleLabel = new JLabel();
-        stimulusLabel = new JLabel();
         promptArea = new JTextArea();
         promptArea.setEditable(false);
 
         // Añadir componentes al contenedor
         add(titleLabel);
-        add(stimulusLabel);
         add(promptArea);
 
-        // Inicialización de botones de opción
-        choiceButtons = new JRadioButton[4];
-        ButtonGroup buttonGroup = new ButtonGroup();
+// Grupo 7
+        // Inicialización de checkboxes
+        choiceButtons = new JCheckBox[4];
         for (int i = 0; i < choiceButtons.length; i++) {
-            choiceButtons[i] = new JRadioButton();
-            buttonGroup.add(choiceButtons[i]);
+            choiceButtons[i] = new JCheckBox();
             add(choiceButtons[i]);
         }
 
@@ -69,7 +68,7 @@ public class QuestionDisplay extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 checkAnswer();
-                showNextQuestion();
+                showQuestion();
             }
         });
         add(nextButton);
@@ -80,6 +79,17 @@ public class QuestionDisplay extends JFrame {
 
         // Iniciar el temporizador
         startTimer();
+        
+// Grupo 1
+        // Inicializar la barra de progreso
+        progressBar = new JProgressBar(0, questions.size());
+        progressBar.setStringPainted(true);
+        progressBar.setValue(0);
+        add(progressBar);
+
+        // Inicializar la etiqueta de conteo de preguntas
+        questionCountLabel = new JLabel();
+        add(questionCountLabel);
 
         // Mostrar la primera pregunta
         showQuestion();
@@ -89,57 +99,62 @@ public class QuestionDisplay extends JFrame {
         if (currentQuestionIndex < questions.size()) {
             Question q = questions.get(currentQuestionIndex);
             titleLabel.setText("Title: " + q.getTitle());
-            stimulusLabel.setText("Stimulus: " + q.getStimulus());
             promptArea.setText(q.getPrompt());
 
-            // Limpiar y actualizar los botones de opción
+            // Verificar el tamaño de choices y asegurarse de que no haya más opciones que botones
+            if (q.getChoices().size() > choiceButtons.length) {
+                throw new IllegalStateException("Más opciones que botones de elección disponibles");
+            }
+            
+// Grupo 7 
+            // Limpiar y actualizar los checkboxes
             for (int i = 0; i < choiceButtons.length; i++) {
                 if (i < q.getChoices().size()) {
                     Question.Choice choice = q.getChoices().get(i);
                     choiceButtons[i].setText(choice.getContent());
                     choiceButtons[i].setActionCommand(choice.getId());
+                    choiceButtons[i].setVisible(true);
                 } else {
-                    choiceButtons[i].setText(""); // Limpiar botones no utilizados
+                    choiceButtons[i].setText("");
+                    choiceButtons[i].setVisible(false);
                 }
             }
 
-            // Deseleccionar todos los botones
-            for (JRadioButton button : choiceButtons) {
+            // Deseleccionar todos los checkboxes
+            for (JCheckBox button : choiceButtons) {
                 button.setSelected(false);
             }
 
+            progressBar.setValue(currentQuestionIndex + 1);
+            questionCountLabel.setText("Pregunta " + (currentQuestionIndex + 1) + " de " + questions.size());
             currentQuestionIndex++;
         } else {
             endQuiz();
         }
     }
 
+ // Grupo 5
     private void checkAnswer() {
         if (currentQuestionIndex > 0) {
             Question q = questions.get(currentQuestionIndex - 1);
-            String selectedChoiceId = getSelectedChoiceId();
+            List<String> selectedChoiceIds = getSelectedChoiceIds();
 
-            // Almacenar la respuesta del usuario
-            userAnswers.add(selectedChoiceId);
+            // Almacenar las respuestas del usuario para esta pregunta
+            userAnswers.add(selectedChoiceIds);
 
-            if (selectedChoiceId != null && 
-                q.getAnswers().stream().anyMatch(answer -> answer.contains(selectedChoiceId))) {
-                score += q.getPoints(); // Aumentar puntaje por respuesta correcta
-            }
+            // Verificar el puntaje usando la lógica del método calculateScore
+            score += calculateScore(q);
         }
     }
 
-    private String getSelectedChoiceId() {
-        for (JRadioButton button : choiceButtons) {
+    private List<String> getSelectedChoiceIds() {
+        List<String> selectedIds = new ArrayList<>();
+        for (JCheckBox button : choiceButtons) {
             if (button.isSelected()) {
-                return button.getActionCommand();
+                selectedIds.add(button.getActionCommand());
             }
         }
-        return null;
-    }
-
-    private void showNextQuestion() {
-        showQuestion();
+        return selectedIds;
     }
 
     private void startTimer() {
@@ -158,43 +173,46 @@ public class QuestionDisplay extends JFrame {
             }
         }, 0, 1000);
     }
-
+    
+ // Grupo3
     @SuppressWarnings("deprecation")
     private void endQuiz() {
-        // Mostrar el puntaje
+        // Muestra el puntaje al usuario
         JOptionPane.showMessageDialog(this, "Quiz terminado. Puntaje: " + score);
-        
+
+        // Crea el documento PDF
         PDDocument document = new PDDocument();
         PDPage page = new PDPage();
-        document.addPage(page); // Agregar la página al documento
+        document.addPage(page);
 
         try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-            contentStream.newLineAtOffset(100, 700); // Establecer la posición del texto
-            contentStream.showText("Quiz terminado. Puntaje: " + score); // Escribir el puntaje
-            contentStream.newLineAtOffset(0, -20); // Bajar la posición
+            contentStream.newLineAtOffset(100, 700);
+            contentStream.showText("Quiz terminado. Puntaje: " + score);
+            contentStream.newLineAtOffset(0, -20);
 
+            // Agrega cada pregunta y respuesta al PDF
             for (int i = 0; i < questions.size(); i++) {
                 Question q = questions.get(i);
                 contentStream.showText("Pregunta: " + q.getPrompt());
                 contentStream.newLineAtOffset(0, -20);
-                
-                // Mostrar respuesta correcta
+
+                // Respuestas correctas
                 String correctAnswerText = getCorrectAnswerText(q);
-                contentStream.setNonStrokingColor(0, 128, 0); // Verde
-                contentStream.showText("Respuesta correcta: " + correctAnswerText);
-                contentStream.newLineAtOffset(0, -20);
-                
-                // Mostrar respuesta del usuario
-                String userAnswer = userAnswers.get(i);
-                String userAnswerText = getUserAnswerText(q, userAnswer);
-                contentStream.setNonStrokingColor(255, 0, 0); // Rojo
-                contentStream.showText("Tu respuesta: " + userAnswer + " (" + userAnswerText + ")");
+                contentStream.setNonStrokingColor(0, 128, 0); // Color verde para respuestas correctas
+                contentStream.showText("Respuesta(s) correcta(s): " + correctAnswerText);
                 contentStream.newLineAtOffset(0, -20);
 
-                // Resetear color a negro para el siguiente texto
-                contentStream.setNonStrokingColor(0, 0, 0); // Negro
+                // Respuesta del usuario
+                List<String> userAnswerIds = userAnswers.get(i);
+                String userAnswerText = getUserAnswerText(q, userAnswerIds);
+                contentStream.setNonStrokingColor(255, 0, 0); // Color rojo para respuesta del usuario
+                contentStream.showText("Tu respuesta(s): " + userAnswerText);
+                contentStream.newLineAtOffset(0, -20);
+
+                // Resetea el color a negro
+                contentStream.setNonStrokingColor(0, 0, 0);
             }
 
             contentStream.endText();
@@ -202,30 +220,60 @@ public class QuestionDisplay extends JFrame {
             e.printStackTrace();
         }
 
-        // Guardar el documento como archivo.pdf
+// Grupo 3   
+        // Guarda el PDF y cierra el documento
         try {
             document.save("archivo.pdf");
             document.close();
+
+            // Abre el archivo PDF generado
+            Desktop.getDesktop().open(new File("archivo.pdf"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Cierra el programa después de finalizar el cuestionario
+        System.exit(0);
     }
+    
 
     private String getCorrectAnswerText(Question q) {
-        // Obtener el texto de la respuesta correcta
         return q.getChoices().stream()
-                 .filter(choice -> q.getAnswers().get(0).contains(choice.getId())) // Asumiendo que la primera respuesta es la correcta
-                 .map(choice -> choice.getContent())
-                 .findFirst()
-                 .orElse("Respuesta no encontrada");
+                 .filter(choice -> q.getAnswers().contains(choice.getId()))
+                 .map(Question.Choice::getContent)
+                 .reduce((a, b) -> a + ", " + b)
+                 .orElse("Respuestas no encontradas");
     }
 
-    private String getUserAnswerText(Question q, String userAnswerId) {
-        // Obtener el texto de la respuesta del usuario
+    private String getUserAnswerText(Question q, List<String> userAnswerIds) {
         return q.getChoices().stream()
-                 .filter(choice -> choice.getId().equals(userAnswerId))
-                 .map(choice -> choice.getContent())
-                 .findFirst()
-                 .orElse("Respuesta no encontrada");
+                 .filter(choice -> userAnswerIds.contains(choice.getId()))
+                 .map(Question.Choice::getContent)
+                 .reduce((a, b) -> a + ", " + b)
+                 .orElse("Respuestas no encontradas");
     }
+//Grupo 5
+    private int calculateScore(Question question) {
+    	int scoreForQuestion = 0;
+    	List<String> correctAnswers = question.getAnswers();
+
+    	// Obtener respuestas seleccionadas
+    	List<String> selectedAnswers = getSelectedChoiceIds();
+    	int selectedCount = selectedAnswers.size();
+
+    	// Penalización por no seleccionar ninguna respuesta o seleccionar todas las opciones
+    	//if (selectedCount == 0 || selectedCount > correctAnswers.size()) {
+    	//return -10; // Penalización de 10 puntos
+    	//}
+
+    	// Verificar si se seleccionaron todas las respuestas correctas
+    	boolean hasAllCorrectAnswers = selectedAnswers.containsAll(correctAnswers) && selectedCount == correctAnswers.size();
+
+    	// Sumar puntos solo si hay respuestas correctas seleccionadas
+    	if (hasAllCorrectAnswers) {
+    		scoreForQuestion += 10; // Sumar 10 puntos por respuestas correctas
+    	}
+
+return scoreForQuestion; // Retornar el puntaje total por la pregunta
+						}
 }
